@@ -11,7 +11,7 @@ Folder Description
 - samples/raspi (rasperrypi bare metal code samples) 
 
 Tutorials code/folders are based on:
-osd: http://wiki.osdev.org/ARM_RaspberryPi_Tutorial_C
-mao: https://github.com/jserv/mini-arm-os
+- osd: http://wiki.osdev.org/ARM_RaspberryPi_Tutorial_C
+- mao: https://github.com/jserv/mini-arm-os
 
 Getting started, journal and more info on https://github.com/inaciose/osdev/wiki
