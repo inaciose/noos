@@ -28,7 +28,7 @@ input 5 "u-boot>"
 lineout "loadb 0x8000"
 
 # Send the linked file at the absolute path.
-send /root/src/osdev/git/samples/bpi/myos.bin
+send /root/src/osdev/git/samples/bpi/osd/01-hello/myos.bin
 
 # Wait for prompt
 input 5 "u-boot>"
