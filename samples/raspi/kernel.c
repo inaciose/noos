@@ -23,10 +23,13 @@ static inline void delay(int32_t count)
 enum
 {
     // The GPIO registers base address.
+    
     GPIO_BASE = 0x3F200000, // for raspi2 & 3, 0x20200000 for raspi1
  
     // The offsets for reach register.
  
+    GPFSEL1 = (GPIO_BASE + 0x4), // added
+    
     // Controls actuation of pull up/down to ALL GPIO pins.
     GPPUD = (GPIO_BASE + 0x94),
  
@@ -34,34 +37,68 @@ enum
     GPPUDCLK0 = (GPIO_BASE + 0x98),
  
     // The base address for UART.
-    UART0_BASE = 0x3F201000, // for raspi2 & 3, 0x20201000 for raspi1
+    UART0_BASE = 0x3F215000, // for raspi2 & 3, 0x20215000 for raspi1
  
     // The offsets for reach register for the UART.
-    UART0_DR     = (UART0_BASE + 0x00),
-    UART0_RSRECR = (UART0_BASE + 0x04),
-    UART0_FR     = (UART0_BASE + 0x18),
-    UART0_ILPR   = (UART0_BASE + 0x20),
-    UART0_IBRD   = (UART0_BASE + 0x24),
-    UART0_FBRD   = (UART0_BASE + 0x28),
-    UART0_LCRH   = (UART0_BASE + 0x2C),
-    UART0_CR     = (UART0_BASE + 0x30),
-    UART0_IFLS   = (UART0_BASE + 0x34),
-    UART0_IMSC   = (UART0_BASE + 0x38),
-    UART0_RIS    = (UART0_BASE + 0x3C),
-    UART0_MIS    = (UART0_BASE + 0x40),
-    UART0_ICR    = (UART0_BASE + 0x44),
-    UART0_DMACR  = (UART0_BASE + 0x48),
-    UART0_ITCR   = (UART0_BASE + 0x80),
-    UART0_ITIP   = (UART0_BASE + 0x84),
-    UART0_ITOP   = (UART0_BASE + 0x88),
-    UART0_TDR    = (UART0_BASE + 0x8C),
+    AUX_IRQ     = (UART0_BASE + 0x00),
+    AUX_ENABLES = (UART0_BASE + 0x04),
+    AUX_MU_IO_REG     = (UART0_BASE + 0x40),
+    AUX_MU_IER_REG   = (UART0_BASE + 0x44),
+    AUX_MU_IIR_REG   = (UART0_BASE + 0x48),
+    AUX_MU_LCR_REG   = (UART0_BASE + 0x4C),
+    AUX_MU_MCR_REG   = (UART0_BASE + 0x50),
+    AUX_MU_LSR_REG     = (UART0_BASE + 0x54),
+    AUX_MU_MSR_REG   = (UART0_BASE + 0x58),
+    AUX_MU_SCRATCH   = (UART0_BASE + 0x5C),
+    AUX_MU_CNTL_REG    = (UART0_BASE + 0x60),
+    AUX_MU_STAT_REG    = (UART0_BASE + 0x64),
+    AUX_MU_BAUD_REG    = (UART0_BASE + 0x68),
+
 };
  
 void uart_init()
 {
-	// Disable UART0.
-	mmio_write(UART0_CR, 0x00000000);
-	// Setup the GPIO pin 14 && 15.
+	// enable Mini UART
+	mmio_write(AUX_ENABLES, 0x1);
+	
+  // disable Mini UART Interrupt
+  // bit0: 0/1 = Disable/Enable transmit interrupt
+  // bit1: 0/1 = Disable/Enable receive interrupt
+  mmio_write(AUX_MU_IER_REG, 0x0);
+  
+  // Mini UART Extra Control
+  // bit0: 0/1 = mini UART receiver Disable/Enable
+  // bit1: 0/1 = mini UART transmitter Disable/Enable
+  mmio_write(AUX_MU_CNTL_REG, 0x0);
+  
+  // Mini UART Line Control
+  // bit0: 0=7bit mode | 1=8bit mode # bit1: unk
+  mmio_write(AUX_MU_LCR_REG, 0x3); 
+  
+  // Mini UART Modem Control
+  // bit1: 0=UART1_RTS line is high | 1=UART1_RTS line is low
+  mmio_write(AUX_MU_MCR_REG, 0x0);
+  
+  // disable Mini UART Interrupt
+  mmio_write(AUX_MU_IER_REG,0);
+  
+  // Mini UART Interrupt Identify
+  mmio_write(AUX_MU_IIR_REG,0xC6);
+  
+  // Mini UART Baudrate
+  mmio_write(AUX_MU_BAUD_REG,270);
+
+  // Setup the GPIO pin 14 && 15. 
+  unsigned int ra;
+  ra=mmio_read(GPFSEL1);
+  
+  ra&=~(7<<12); //gpio14
+  ra|=2<<12;    //alt5
+  ra&=~(7<<15); //gpio15
+  ra|=2<<15;    //alt5
+  mmio_write(GPFSEL1,ra);
+  
+  // Setup the GPIO pin 14 && 15.
  
 	// Disable pull up/down for all GPIO pins & delay for 150 cycles.
 	mmio_write(GPPUD, 0x00000000);
@@ -73,9 +110,11 @@ void uart_init()
  
 	// Write 0 to GPPUDCLK0 to make it take effect.
 	mmio_write(GPPUDCLK0, 0x00000000);
- 
+  
+  mmio_write(AUX_MU_CNTL_REG, 0x3);
+   
 	// Clear pending interrupts.
-	mmio_write(UART0_ICR, 0x7FF);
+	//mmio_write(UART0_ICR, 0x7FF);
  
 	// Set integer & fractional part of baud rate.
 	// Divider = UART_CLOCK/(16 * Baud)
@@ -83,38 +122,39 @@ void uart_init()
 	// UART_CLOCK = 3000000; Baud = 115200.
  
 	// Divider = 3000000 / (16 * 115200) = 1.627 = ~1.
-	mmio_write(UART0_IBRD, 1);
+	//mmio_write(UART0_IBRD, 1);
 	// Fractional part register = (.627 * 64) + 0.5 = 40.6 = ~40.
-	mmio_write(UART0_FBRD, 40);
+	//mmio_write(UART0_FBRD, 40);
  
 	// Enable FIFO & 8 bit data transmissio (1 stop bit, no parity).
-	mmio_write(UART0_LCRH, (1 << 4) | (1 << 5) | (1 << 6));
+	//mmio_write(UART0_LCRH, (1 << 4) | (1 << 5) | (1 << 6));
  
 	// Mask all interrupts.
-	mmio_write(UART0_IMSC, (1 << 1) | (1 << 4) | (1 << 5) | (1 << 6) |
-	                       (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10));
+	//mmio_write(UART0_IMSC, (1 << 1) | (1 << 4) | (1 << 5) | (1 << 6) |
+	//                       (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10));
  
 	// Enable UART0, receive & transfer part of UART.
-	mmio_write(UART0_CR, (1 << 0) | (1 << 8) | (1 << 9));
+	//mmio_write(UART0_CR, (1 << 0) | (1 << 8) | (1 << 9));
 }
  
 void uart_putc(unsigned char c)
 {
 	// Wait for UART to become ready to transmit.
-	while ( mmio_read(UART0_FR) & (1 << 5) ) { }
-	mmio_write(UART0_DR, c);
+	while ( mmio_read(AUX_MU_LSR_REG) & (1 << 5) ) { }
+	mmio_write(AUX_MU_IO_REG, c);
 }
  
 unsigned char uart_getc()
 {
     // Wait for UART to have received something.
-    while ( mmio_read(UART0_FR) & (1 << 4) ) { }
-    return mmio_read(UART0_DR);
+    while ( mmio_read(AUX_MU_LSR_REG) & (1 << 4) ) { }
+    return mmio_read(AUX_MU_IO_REG);
 }
  
 void uart_puts(const char* str)
 {
-	for (size_t i = 0; str[i] != '\0'; i ++)
+	size_t i;
+  for (i = 0; str[i] != '\0'; i ++)
 		uart_putc((unsigned char)str[i]);
 }
  
