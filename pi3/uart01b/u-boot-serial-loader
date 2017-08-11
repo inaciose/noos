@@ -1,0 +1,40 @@
+#!/usr/bin/kermit
+
+# Serial port setup.  These settings will likely need to be
+set line /dev/ttyUSB0
+set speed 115200
+set serial 8n1
+
+# General C-Kermit settings.  These probably don't need to change.
+set flow-control none
+set file type bin
+set carrier-watch off
+set prefixing all
+set modem none
+
+# Start notice
+echo "Prepared to boot new kernel.  Reset the board now."
+
+# The string that board outputs to get on u-boot console
+input 60 "Hit any key to stop autoboot"
+
+# Send the required key
+output " "
+
+# Wait for prompt
+input 5 "u-boot>"
+
+# Load to specific  memory address
+lineout "loadb 0x8000"
+
+# Send the linked file at the absolute path.
+send /root/src/noos/pi3/uart01b/run.bin
+
+# Wait for prompt
+input 5 "u-boot>"
+
+# Execute at memory address
+lineout "go 0x8000"
+
+# Drops you into a console where you can interact
+connect
