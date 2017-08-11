@@ -1,8 +1,7 @@
 #include "io.h"
+#include "strings.h"
 
-//#define AUX_MU_IO_REG   0x3F215040 // Mini Uart I/O Data
-//#define AUX_MU_LSR_REG  0x3F215054 // Mini Uart Line Status
-
+// define a pointer to the struct mapping the aux mini uart
 static struct_aux_regs_t *uart_regs = (struct_aux_regs_t*)AUX_UART_BASE;
 
 // Loop <delay> times
@@ -37,14 +36,47 @@ void uart_puts(const char *s)
   }
 }
 
+void setgpiofunc(unsigned int func, unsigned int alt)
+{
+
+  unsigned int sel, data, shift;
+
+  if(func > 53) return;
+  sel = 0;
+  while (func > 10) {
+    func = func - 10;
+    sel++;
+  }
+  // func 0004 - 0005
+  // sel  0001 - 0001
+  
+  sel = (sel << 2) + GPFSEL0;
+  // sel 3F200004 - 3F200004
+  
+  data = read32(sel);
+  // data 12000 | 12000
+  
+  shift = func + (func << 1);
+  // shift 000C | 000F 
+  
+  data &= ~(7 << shift);
+  data |= alt << shift;
+  // data 12000 | 12000
+  
+  write32(sel, data);
+}
+
 void uart_init ( void )
 {
-  unsigned int ra;
 
   // enable Mini UART
   //write32(AUX_ENABLES,1);
   uart_regs->AUX_ENABLES = 0x1;
   
+  // Setup the GPIO pin 14 && 15
+  setgpiofunc(14, 2); // gpio 14, alt 5
+  setgpiofunc(15, 2); // gpio 15, alt 5
+
   // Mini UART Interrupt
   // bit0: 0/1 = Disable/Enable transmit interrupt
   // bit1: 0/1 = Disable/Enable receive interrupt
@@ -86,12 +118,8 @@ void uart_init ( void )
   uart_regs->AUX_MU_BAUD_REG = 270;
 
   // Setup the GPIO pin 14 && 15
-  ra=read32(GPFSEL1);
-  ra&=~(7<<12); //gpio14
-  ra|=2<<12;    //alt5
-  ra&=~(7<<15); //gpio15
-  ra|=2<<15;    //alt5
-  write32(GPFSEL1,ra);
+  setgpiofunc(14, 2); // gpio 14, alt 5
+  setgpiofunc(15, 2); // gpio 15, alt 5
   
   // Disable pull up/down for all GPIO pins & delay for 150 cycles
   write32(GPPUD,0);

@@ -2,7 +2,7 @@
 #define AUX_UART_BASE     (IO_BASE + 0x00215000)
 
 // BCM2835 ARM peripherals - Page 89
-#define GPFSEL1         (IO_BASE + 0x00200004) // GPIO Function Select 1
+#define GPFSEL0         (IO_BASE + 0x00200000) // GPIO Function Select 0
 #define GPPUD           (IO_BASE + 0x00200094) // GPIO Pin Pull-up/down Enable
 #define GPPUDCLK0       (IO_BASE + 0x00200098) // GPIO Pin Pull-up/down Enable Clock 0
 
@@ -50,3 +50,71 @@ typedef struct {
   */
 } struct_aux_regs_t;
 
+// -----------------------------------------------------------------------------
+
+// BCM2835 ARM peripherals - Page 89
+/*
+typedef struct {
+   volatile unsigned int GPFSEL0;               // 00 GPIO Function Select 0
+   volatile unsigned int GPFSEL1;               // 04
+   volatile unsigned int GPFSEL2;               // 08
+   volatile unsigned int GPFSEL3;               // 0C
+   volatile unsigned int GPFSEL4;               // 10
+   volatile unsigned int GPFSEL5;               // 14
+   
+   volatile unsigned int RESERVED1;             // 18 
+   
+   volatile unsigned int GPSET0;                // 1C
+   volatile unsigned int GPSET1;                // 20
+   
+   volatile unsigned int GPCLR0;                // 28
+   volatile unsigned int GPCLR1;                // 2C
+   
+   volatile unsigned int RESERVED2;             // 30
+   
+   volatile unsigned int GPLEV0;                // 34
+   volatile unsigned int GPLEV1;                // 38
+   
+   volatile unsigned int RESERVED3;             // 3C
+   
+   volatile unsigned int GPEDS0;                // 40
+   volatile unsigned int GPEDS1;                // 44
+   
+   volatile unsigned int RESERVED4;             // 48
+   
+   volatile unsigned int GPREN0;                // 4C
+   volatile unsigned int GPREN1;                // 50
+   
+   volatile unsigned int RESERVED5;             // 54
+   
+   volatile unsigned int GPFEN0;                // 58
+   volatile unsigned int GPFEN1;                // 5C
+   
+   volatile unsigned int RESERVED6;             // 60
+   
+   volatile unsigned int GPHEN0;                // 64
+   volatile unsigned int GPHEN1;                // 68
+   
+   volatile unsigned int RESERVED7;             // 6C
+   
+   volatile unsigned int GPLEN0;                // 70
+   volatile unsigned int GPLEN1;                // 74
+   
+   volatile unsigned int RESERVED8;             // 78
+
+   volatile unsigned int GPAREN0;               // 7C
+   volatile unsigned int GPAREN1;               // 80
+
+   volatile unsigned int RESERVED9;             // 84
+   
+   volatile unsigned int GPAFEN0;               // 88
+   volatile unsigned int GPAFEN1;               // 8C
+   
+   volatile unsigned int RESERVED10;            // 90
+   
+   volatile unsigned int GPPUD;                 // 94
+   volatile unsigned int GPPUDCLK0;             // 98
+   volatile unsigned int GPPUDCLK1;             // 9C
+
+} struct_gpio_regs_t;
+*/

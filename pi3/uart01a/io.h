@@ -1,7 +1,7 @@
 #define IO_BASE 0x3F000000
 
 // BCM2835 ARM peripherals - Page 89
-#define GPFSEL1         (IO_BASE + 0x00200004) // GPIO Function Select 1
+#define GPFSEL0         (IO_BASE + 0x00200000) // GPIO Function Select 0
 #define GPPUD           (IO_BASE + 0x00200094) // GPIO Pin Pull-up/down Enable
 #define GPPUDCLK0       (IO_BASE + 0x00200098) // GPIO Pin Pull-up/down Enable Clock 0
 

@@ -32,10 +32,29 @@ void uart_puts(const char *s)
   }
 }
 
+void setgpiofunc(unsigned int func, unsigned int alt)
+{
+  unsigned int sel, data, shift;
+
+  if(func > 53) return;
+  
+  sel = 0;
+  while (func > 10) {
+    func = func - 10;
+    sel++;
+  }
+  sel = (sel << 2) + GPFSEL0;
+
+  data = read32(sel);
+  shift = func + (func << 1);
+  data &= ~(7 << shift);
+  data |= alt << shift;
+  
+  write32(sel, data);
+}
+
 void uart_init ( void )
 {
-  unsigned int ra;
-
   // enable Mini UART
   write32(AUX_ENABLES,1);
   
@@ -73,12 +92,8 @@ void uart_init ( void )
   write32(AUX_MU_BAUD_REG,270);
 
   // Setup the GPIO pin 14 && 15
-  ra=read32(GPFSEL1);
-  ra&=~(7<<12); //gpio14
-  ra|=2<<12;    //alt5
-  ra&=~(7<<15); //gpio15
-  ra|=2<<15;    //alt5
-  write32(GPFSEL1,ra);
+  setgpiofunc(14, 2); // gpio 14, alt 5
+  setgpiofunc(15, 2); // gpio 15, alt 5
   
   // Disable pull up/down for all GPIO pins & delay for 150 cycles
   write32(GPPUD,0);
