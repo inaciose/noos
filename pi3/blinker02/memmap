@@ -6,6 +6,22 @@ MEMORY
 
 SECTIONS
 {
-    .text : { *(.text*) } > ram
-    .bss : { *(.bss*) } > ram
+.text :
+    {
+        . = ALIGN(4);
+         _start = .;
+        *(.text .text.*)
+    } > ram
+
+ .bss :
+    {
+        . = ALIGN(4);
+        *(.bss .bss.*)
+   } > ram
+
+.data :
+    {
+        . = ALIGN(4);
+        *(.data .data.*)
+   } > ram
 }
