@@ -42,7 +42,7 @@ MailboxWrite:
 
   wait_write$:
     status .req r3
-    ldr status, [mailbox, #0x18] @; Load the status of the mailbox (0)
+    ldr status, [mailbox, #0x38] @; Load the status of the mailbox (0)
     tst status, #0x80000000 @; Check the status against the FULL bit
     .unreq status
     bne wait_write$ @; Keep checking the mailbox until it isn't full
@@ -97,7 +97,7 @@ PropertyInfo:
   @; = Tag Header =
   .int 0x00038041 @; Tag ID (SET_GPIO_STATE)
   .int 8 @; Value buffer size
-  .int 0 @; Request/response size
+  .int 8 @; Request/response size
   @; = Tag Value Buffer =
   .int 130 @; ACT_LED pin number
   .int 1 @; Turn it on
