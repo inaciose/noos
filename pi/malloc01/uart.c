@@ -1,19 +1,10 @@
-// define Register addresses
+// define gpio register addresses
 #define GPFSEL0           0x20200000
-#define GPFSEL1           0x20200004
-#define GPFSEL2           0x20200008
-#define GPFSEL3           0x2020000C
-#define GPFSEL4           0x20200010
-#define GPFSEL5           0x20200014
 #define GPSET0            0x2020001C
-#define GPSET1            0x20200020
-#define GPCLR0            0x20200028
-#define GPCLR1            0x2020002C
 #define GPPUD             0x20200094
 #define GPPUDCLK0         0x20200098
-#define GPPUDCLK1         0x2020009C
 
-#define AUX_IRQ           0x20215000
+// define mini uart register addresses
 #define AUX_ENABLES       0x20215004
 #define AUX_MU_IO_REG     0x20215040
 #define AUX_MU_IER_REG    0x20215044
@@ -21,12 +12,8 @@
 #define AUX_MU_LCR_REG    0x2021504C
 #define AUX_MU_MCR_REG    0x20215050
 #define AUX_MU_LSR_REG    0x20215054
-#define AUX_MU_MSR_REG    0x20215058
-#define AUX_MU_SCRATCH    0x2021505C
 #define AUX_MU_CNTL_REG   0x20215060
-#define AUX_MU_STAT_REG   0x20215064
 #define AUX_MU_BAUD_REG   0x20215068
-
 
 // memory mapped i/o access macros
 #define write32(addr, v)      (*((volatile unsigned long  *)(addr)) = (unsigned long)(v))
@@ -56,7 +43,7 @@ void uart_setgpiofunc(unsigned int func, unsigned int alt)
   write32(sel, data);
 }
 
-void uart_putc(unsigned int c)
+void uart_putc(int c)
 {
   if(c=='\n') {
     while(1) if(read32(AUX_MU_LSR_REG) & 0x20) break;
