@@ -48,3 +48,27 @@ void print_hex(uint val) {
     uart_putc('\r');
     uart_putc('\n');
 }
+
+void hexstrings ( unsigned int d )
+{
+  unsigned int rb;
+  unsigned int rc;
+
+  rb=32;
+  while(1)
+  {
+    rb-=4;
+    rc=(d>>rb)&0xF;
+    if(rc>9) rc+=0x37; else rc+=0x30;
+    uart_putc(rc);
+    if(rb==0) break;
+  }
+  uart_putc(0x20);
+}
+
+void hexstring ( unsigned int d )
+{
+  hexstrings(d);
+  uart_putc(0x0D);
+  uart_putc(0x0A);
+}
