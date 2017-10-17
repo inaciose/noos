@@ -55,10 +55,14 @@ int cmain(void) {
   ret3 = (char *) malloc(sizeof(char));
   ret4 = (struct test_struct1 *) malloc(sizeof(struct test_struct1));
 
-  hexstring((unsigned int) ret1, "\n");
-  hexstring((unsigned int) ret2, "\n");
-  hexstring((unsigned int) ret3, "\n");
-  hexstring((unsigned int) ret4, "\n");
+  hexstring((unsigned int) ret1, " ");
+  hexstring((unsigned int) sizeof(struct test_struct1), "\n");
+  hexstring((unsigned int) ret2, " ");
+  hexstring((unsigned int) sizeof(struct test_struct2), "\n");
+  hexstring((unsigned int) ret3, " ");
+  hexstring((unsigned int) sizeof(char), "\n");
+  hexstring((unsigned int) ret4, " ");
+  hexstring((unsigned int) sizeof(struct test_struct1), "\n");
   
   uart_puts("free\n");
   free(ret1);
