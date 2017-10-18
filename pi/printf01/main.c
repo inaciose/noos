@@ -2,7 +2,8 @@
 void uart_putc(int);
 void uart_puts(const char *);
 void uart_init(void);
-//printf
+
+//printf.c
 void printf(const char *, ...);
 
 // printf() expect this function
